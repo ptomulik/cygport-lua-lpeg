@@ -2,7 +2,7 @@ inherit lua
 
 NAME="lua-lpeg"
 VERSION=0.12
-RELEASE=1
+RELEASE=2
 CATEGORY="Lua"
 SUMMARY="Lua Parsing Expression Grammars extension"
 DESCRIPTION="LPeg is a pattern-matching library for Lua, based on Parsing
