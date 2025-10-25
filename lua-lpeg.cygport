@@ -1,21 +1,35 @@
 inherit lua
 
-NAME="lua-lpeg"
+NAME="lua${LUA_VERSION}-lpeg"
 VERSION=1.1.0
 RELEASE=1
+
 CATEGORY="Lua"
 SUMMARY="Lua Parsing Expression Grammars extension"
-DESCRIPTION="LPeg is a pattern-matching library for Lua, based on Parsing
-Expression Grammars (PEGs)."
+DESCRIPTION="LPeg is a pattern-matching library for Lua, based on Parsing Expression Grammars (PEGs)."
 HOMEPAGE="http://www.inf.puc-rio.br/~roberto/lpeg/"
 SRC_URI="http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-${VERSION}.tar.gz"
 SRC_DIR="lpeg-${VERSION}"
+BUILD_REQUIRES="gcc-core lua${LUA_VERSION} lua${LUA_VERSION}-devel"
+
+PKG_NAMES="lua${LUA_VERSION}-lpeg lua${LUA_VERSION}-lpeg-devel"
+
+LUA_LPEG_VAR="lua${LUA_VERSION//[\.-]/_}_lpeg"
+
+declare ${LUA_LPEG_VAR}_CONTENTS="${LUA_LIBDIR#/}/*.dll ${LUA_SCRIPTDIR#/}/* usr/share/doc"
+declare ${LUA_LPEG_VAR}_SUMMARY="${SUMMARY} - runtime"
+declare ${LUA_LPEG_VAR}_OBSOLETES="lua-lpeg"
+
+declare ${LUA_LPEG_VAR}_devel_CONTENTS="${LUA_LIBDIR#/}/*.dll.a"
+declare ${LUA_LPEG_VAR}_devel_SUMMARY="${SUMMARY} - devel"
+declare ${LUA_LPEG_VAR}_devel_REQUIRES="lua${LUA_VERSION}-lpeg"
+declare ${LUA_LPEG_VAR}_devel_OBSOLETES="lua-lpeg-devel"
 
 src_compile() {
 	lndirs
 	cd ${B}
 	inform "compiling lpeg.dll"
-	${CC} ${CFLAGS} ${LUA_CFLAGS} -shared -o lpeg.dll *.c ${LUA_LIBS}
+	${CC} ${CFLAGS} ${LUA_CFLAGS} -shared -o lpeg.dll -Wl,--out-implib=liblpeg.dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive *.c -Wl,--no-whole-archive ${LUA_LIBS}
 }
 
 src_test() {
@@ -26,5 +40,6 @@ src_test() {
 src_install() {
 	cd ${B}
 	dolua lpeg.dll re.lua
+	insinto ${LUA_LIBDIR}; doins liblpeg.dll.a
 	dodoc *.html
 }
